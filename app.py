@@ -27,12 +27,14 @@ def _():
         parse_infocus_zip,
         combine_infocus_results,
         enrich_infocus_with_devices,
+        rename_and_select_columns,
     )
     return (
         clean_start_stop,
         combine_infocus_results,
         enrich_infocus_with_devices,
         parse_infocus_zip,
+        rename_and_select_columns,
     )
 
 
@@ -279,8 +281,20 @@ def _(cleaned_by_device, df_devices, enrich_infocus_with_devices):
     return (df_by_device,)
 
 
+@app.cell
+def _(df_by_device):
+    df_by_device
+    return
+
+
+@app.cell
+def _(df_by_device, rename_and_select_columns):
+    standardized_by_device = rename_and_select_columns(df_by_device)
+    return (standardized_by_device,)
+
+
 @app.cell(hide_code=True)
-def _(df_by_device, mo):
+def _(mo, standardized_by_device):
     sections = {}
 
     def _pretty_label(df, default_device: str) -> str:
@@ -296,17 +310,17 @@ def _(df_by_device, mo):
         return default_device
 
     # ----- Local section -----
-    if df_by_device.get("local") is not None and not df_by_device["local"].empty:
-        label = f"Local - {_pretty_label(df_by_device['local'], 'Mac')}"
-        sections[label] = mo.ui.table(df_by_device["local"], show_column_summaries = False)
+    if standardized_by_device.get("local") is not None and not standardized_by_device["local"].empty:
+        label = f"Local - {_pretty_label(standardized_by_device['local'], 'Mac')}"
+        sections[label] = mo.ui.table(standardized_by_device["local"], show_column_summaries = False)
 
 
     # ----- Remote sections -----
-    for device, df in df_by_device.get("remote", {}).items():
+    for device, df in standardized_by_device.get("remote", {}).items():
         if df is None or df.empty:
             continue
 
-        label = _pretty_label(df, device)
+        label = _pretty_label(df, "unknown")
         sections[f"Remote - {label} - {device}"] = mo.ui.table(df, show_column_summaries = False)
 
     tables = mo.accordion(sections) if sections else mo.md("No data available.")
@@ -343,7 +357,6 @@ def _(cleanup_button):
 @app.cell
 def _(cleanup_button, con, mo, os, tmp_path):
     # Logic: Only show the result if the button is pressed
-    # mo.md(clean_up()) if cleanup_button.value else mo.md("")
 
     # Stop unless cleanup is clicked
     mo.stop(not cleanup_button.value)

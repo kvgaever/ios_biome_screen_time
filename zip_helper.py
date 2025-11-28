@@ -6,6 +6,26 @@ import pandas as pd
 from parser import parse_segb_file
 
 
+FALLBACK_DEVICE = "unknown"
+
+COLUMN_RENAMES = {
+    "ts": "timestamp",
+    "f3": "open_close",
+    "f6": "app_bundle",
+    "f9": "app_version",
+}
+
+SELECT_COLUMNS = [
+    "timestamp",
+    "open_close",
+    "app_bundle",
+    "app_version",
+    "last_sync_date",
+    "device_identifier",
+    "device_name",
+]
+
+
 def parse_infocus_zip(zip_path: str):
     """Parse App.InFocus ZIP; skip tombstones, __MACOSX, .DS_Store, and lock files."""
     local_results: dict[str, pd.DataFrame] = {}
@@ -91,7 +111,7 @@ def enrich_infocus_with_devices(
     df_devices: pd.DataFrame,
     device_col: str = "device",
     devices_identifier_col: str = "device_identifier",
-    fallback_device: str = "unknown_device",
+    fallback_device: str = FALLBACK_DEVICE,
 ) -> dict[str, dict[str, pd.DataFrame]]:
     """
     Enrich combined dataframes with device metadata by merging:
@@ -131,12 +151,26 @@ def enrich_infocus_with_devices(
                 fallback_device
             )
 
+        if "device_name" not in df.columns:
+            df["device_name"] = fallback_device
+        else:
+            df["device_name"] = df["device_name"].fillna(fallback_device)
+
         return df
+
+    local_device_key = fallback_device
+    if not devices.empty and "Local Device" in devices.columns:
+        local_rows = devices[devices["Local Device"] == "Yes"]
+        if (
+            devices_identifier_col in local_rows.columns
+            and not local_rows.empty
+        ):
+            local_device_key = local_rows[devices_identifier_col].iloc[0]
 
     # Apply merge to local
     enriched_local = _merge_single(
         combined.get("local"),
-        device_key="mac"
+        device_key=local_device_key
     )
 
     # Apply merge to remote devices
@@ -214,3 +248,37 @@ def clean_start_stop(
         )
 
     return clean_df.sort_values(["ts", "f3"])
+
+
+def rename_and_select_columns(
+    by_device: dict[str, dict[str, pd.DataFrame]]
+) -> dict[str, dict[str, pd.DataFrame]]:
+    """
+    Rename columns using COLUMN_RENAMES and keep only SELECT_COLUMNS
+    for each dataframe in the by_device structure.
+    """
+
+    def _process(df: pd.DataFrame | None) -> pd.DataFrame:
+        if df is None:
+            return pd.DataFrame()
+        if df.empty:
+            return df
+
+        renamed = df.rename(columns=COLUMN_RENAMES)
+        if "device_identifier" not in renamed.columns:
+            renamed["device_identifier"] = FALLBACK_DEVICE
+        if "device_name" not in renamed.columns:
+            renamed["device_name"] = FALLBACK_DEVICE
+        if "last_sync_date" not in renamed.columns:
+            renamed["last_sync_date"] = pd.NaT
+
+        cols = [c for c in SELECT_COLUMNS if c in renamed.columns]
+        return renamed[cols] if cols else renamed
+
+    local_df = _process(by_device.get("local"))
+    remote_dfs = {
+        device: _process(df)
+        for device, df in by_device.get("remote", {}).items()
+    }
+
+    return {"local": local_df, "remote": remote_dfs}
