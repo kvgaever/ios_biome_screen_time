@@ -1,0 +1,7 @@
+[project]
+name = "ios-biome-screen-time"
+version = "0.1.0"
+description = "iOS screen time parser for Biome data"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
