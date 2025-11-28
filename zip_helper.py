@@ -175,6 +175,23 @@ def clean_start_stop(
     If clean_orphans is True, also remove orphaned start/stop events that
     do not form complete sessions.
     """
+    # Short-circuit on empty / None data
+    if df is None or df.empty:
+        return pd.DataFrame() if df is None else df
+
+    # Keep only "Written" state rows; drop the whole dataframe if none remain
+    df = df[df["state"] == "Written"].copy()
+    if df.empty:
+        print("clean_start_stop: skipped cleaning, no 'Written' state rows")
+        return df
+
+    # Ensure required columns exist; if not, return the raw data
+    required = {"ts", "f3", "f6", "state"}
+    missing = [col for col in required if col not in df.columns]
+    if missing:
+        print(f"clean_start_stop: skipped cleaning, missing columns: {missing}")
+        return pd.DataFrame()
+
     # Sort by Timestamp (ascending), and then by State (ascending)
     # 'f3' ascending means 0 (Stop) comes before 1 (Start) at the same timestamp.
     df = df.sort_values(by=["ts", "f3"], ascending=[True, True])

@@ -4,7 +4,6 @@ __generated_with = "0.18.1"
 app = marimo.App(
     width="medium",
     app_title="iOS Screen Time Parser",
-    # css_file="/usr/local/_marimo/custom.css",
     auto_download=["html"],
 )
 
