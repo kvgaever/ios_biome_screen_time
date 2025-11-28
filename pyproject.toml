@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "iOS screen time parser for Biome data"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "bbpb==1.4.2",
+    "duckdb==1.4.2",
+    "marimo>=0.18.1",
+    "openpyxl==3.1.5",
+    "pandas==2.3.3",
+]

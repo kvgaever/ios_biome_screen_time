@@ -1,21 +1,10 @@
-# /// script
-# requires-python = ">=3.10"
-# dependencies = [
-#     "bbpb==1.4.2",
-#     "duckdb==1.4.2",
-#     "marimo",
-#     "openpyxl==3.1.5",
-#     "pandas==2.3.3",
-# ]
-# ///
-
 import marimo
 
 __generated_with = "0.18.1"
 app = marimo.App(
     width="medium",
     app_title="iOS Screen Time Parser",
-    css_file="/usr/local/_marimo/custom.css",
+    # css_file="/usr/local/_marimo/custom.css",
     auto_download=["html"],
 )
 
