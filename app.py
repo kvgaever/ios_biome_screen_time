@@ -281,11 +281,6 @@ def _(cleaned_by_device, df_devices, enrich_infocus_with_devices):
     return (df_by_device,)
 
 
-@app.cell
-def _(df_by_device):
-    df_by_device
-    return
-
 
 @app.cell
 def _(df_by_device, rename_and_select_columns):
