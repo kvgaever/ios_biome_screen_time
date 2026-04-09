@@ -11,9 +11,9 @@ Use the provided `Dockerfile` to build an image that already has the Python depe
 2. Run the app (exposes Marimo's default port 8000):
 
 	```bash
-	docker run --rm -p 8000:8000 aster
+	docker run --rm -p 8080:8080 aster
 	```
 
-3. Open [http://localhost:8000](http://localhost:8000) in your browser and upload the `sync.db` and zipped `App.InFocus` folder as described in the UI.
+3. Open [http://localhost:8080](http://localhost:8080) in your browser and upload the `sync.db` and zipped `App.InFocus` folder as described in the UI.
 
 If you need to work with files outside the container, mount a host directory and point the UI file picker to it.
