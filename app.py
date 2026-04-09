@@ -3,7 +3,7 @@ import marimo
 __generated_with = "0.18.1"
 app = marimo.App(
     width="medium",
-    app_title="iOS Screen Time Parser",
+    app_title="ASTER - Apple Screen Time ExploreR",
     auto_download=["html"],
 )
 
@@ -41,7 +41,7 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # iOS Screentime Parser
+    # ASTER - Apple Screen Time ExploreR
 
     This version of our app:
 
