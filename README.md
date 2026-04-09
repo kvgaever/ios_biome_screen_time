@@ -8,7 +8,7 @@ Use the provided `Dockerfile` to build an image that already has the Python depe
 	docker build -t aster .
 	```
 
-2. Run the app (exposes Marimo's default port 8000):
+2. Run the app (on port 8080):
 
 	```bash
 	docker run --rm -p 8080:8080 aster
