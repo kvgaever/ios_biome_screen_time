@@ -5,13 +5,13 @@ Use the provided `Dockerfile` to build an image that already has the Python depe
 1. Build the image:
 
 	```bash
-	docker build -t ios-biome-screen-time .
+	docker build -t aster .
 	```
 
 2. Run the app (exposes Marimo's default port 8000):
 
 	```bash
-	docker run --rm -p 8000:8000 ios-biome-screen-time
+	docker run --rm -p 8000:8000 aster
 	```
 
 3. Open [http://localhost:8000](http://localhost:8000) in your browser and upload the `sync.db` and zipped `App.InFocus` folder as described in the UI.
